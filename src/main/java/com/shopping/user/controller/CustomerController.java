@@ -1,6 +1,7 @@
 package com.shopping.user.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +17,8 @@ public class CustomerController {
 	
 	@Autowired
 	CustomerService customerService;
+
+
 	
 	@PostMapping("/register")
 	public void registerCustomer(@RequestBody Customer customer){
@@ -23,7 +26,7 @@ public class CustomerController {
 	}
 	
 	@PostMapping("/login")
-	public void loginCustomer(@RequestBody Customer customer){
-		customerService.loginCustomer(customer);
+	public ResponseEntity<String> loginCustomer(@RequestBody Customer customer){
+		return customerService.loginCustomer(customer);
 	}
 }

@@ -3,7 +3,10 @@ package com.shopping.user.service;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import com.shopping.user.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.shopping.user.entity.Customer;
@@ -17,6 +20,9 @@ public class CustomerService {
 
 	@Autowired
 	CustomerRepository customerRepository;
+
+	@Autowired
+	private JwtUtil jwtUtil;
 	
 	public void registerCustomer(Customer customer) {
 		String mailString = customer.getMail();
@@ -32,7 +38,7 @@ public class CustomerService {
 		}	
 	}
 	
-	public void loginCustomer(Customer customer) {
+	public ResponseEntity<String> loginCustomer(Customer customer) {
 		String mailString = customer.getMail();
 		String passString = customer.getPassword();
 		if(validateMail(mailString)) {
@@ -44,6 +50,7 @@ public class CustomerService {
 				String savedPassString = existCustomer.getPassword();
 				if(passString.equals(savedPassString)) {
 					// Login
+					return generateToken(existCustomer);
 				}
 				else {
 					throw new CustomerException("Password incorrect, try again");
@@ -52,9 +59,16 @@ public class CustomerService {
 		}
 		else {
 			throw new CustomerException("Mail format is invalid");
-		}	
+		}
+		return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 	}
-	
+
+	private ResponseEntity<String> generateToken(Customer existCustomer) {
+		String token = jwtUtil.generateToken(existCustomer.getMail());
+
+		return new ResponseEntity<String>(token, HttpStatus.CREATED);
+	}
+
 	public static boolean validateMail(String emailAddress) {
 		String regexPattern = "^(.+)@(\\S+)$";
 	    return Pattern.compile(regexPattern)
