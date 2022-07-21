@@ -24,17 +24,26 @@ public class CustomerService {
 	@Autowired
 	private JwtUtil jwtUtil;
 	
-	public void registerCustomer(Customer customer) {
+	public ResponseEntity<String> registerCustomer(Customer customer) {
 		String mailString = customer.getMail();
-		//String passString = customer.getPassword();
-		if(validateMail(mailString)) {
-			if(validateUser(mailString))
-			{
-				customerRepository.save(customer);
-			}
+		String passString = customer.getPassword();
+		if(passString.isEmpty()) {
+			throw new CustomerException("Password cannot be empty, please enter a password");
 		}
 		else {
-			throw new CustomerException("Mail format is invalid");
+			if(validateMail(mailString)) {
+				if(validateUser(mailString))
+				{
+					customerRepository.save(customer);
+					return new ResponseEntity<String>("Successfully Registered", HttpStatus.CREATED);
+				}
+				else {
+					throw new CustomerException("Please choose another mail ID");
+				}
+			}
+			else {
+				throw new CustomerException("Mail format is invalid");
+			}
 		}	
 	}
 	
@@ -56,11 +65,14 @@ public class CustomerService {
 					throw new CustomerException("Password incorrect, try again");
 				}
 			}
+			else {
+				throw new CustomerException("Please register as new user");
+			}
 		}
 		else {
 			throw new CustomerException("Mail format is invalid");
 		}
-		return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		//return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 	}
 
 	private ResponseEntity<String> generateToken(Customer existCustomer) {
@@ -82,7 +94,7 @@ public class CustomerService {
 			return true;
 		}
 		else {
-			throw new CustomerException("Mail ID is already registered, please choose another mail ID");
+			throw new CustomerException("Mail ID is already registered");
 		}
 	}
 	
@@ -92,7 +104,7 @@ public class CustomerService {
 			return true;
 		}
 		else {
-			throw new CustomerException("Mail ID is not registered, please register as new user");
+			throw new CustomerException("Mail ID is not registered");
 		}
 	}
 
