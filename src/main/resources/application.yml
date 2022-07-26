@@ -15,3 +15,6 @@ jwt:
   #3 minutes validity
   token:
     validity: 180000
+    
+aes:
+  secret: ShpCrtPro

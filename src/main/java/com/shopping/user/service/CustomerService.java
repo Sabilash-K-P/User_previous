@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.shopping.user.entity.Customer;
 import com.shopping.user.exception.CustomerException;
 import com.shopping.user.repository.CustomerRepository;
+import com.shopping.user.security.AESEncryptionDecryption;
 
 
 @Service
@@ -24,6 +25,9 @@ public class CustomerService {
 	@Autowired
 	private JwtUtil jwtUtil;
 	
+	@Autowired
+	private AESEncryptionDecryption aesEncryptionDecryption;
+	
 	public ResponseEntity<String> registerCustomer(Customer customer) {
 		String mailString = customer.getMail();
 		String passString = customer.getPassword();
@@ -31,6 +35,7 @@ public class CustomerService {
 			throw new CustomerException("Password cannot be empty, please enter a password");
 		}
 		else {
+			customer.setPassword(aesEncryptionDecryption.encrypt(passString));
 			if(validateMail(mailString)) {
 				if(validateUser(mailString))
 				{
@@ -56,7 +61,7 @@ public class CustomerService {
 				// Login functionality
 				Optional<Customer> existingUser = customerRepository.findById(mailString);
 				Customer existCustomer = existingUser.get();
-				String savedPassString = existCustomer.getPassword();
+				String savedPassString = aesEncryptionDecryption.decrypt(existCustomer.getPassword());
 				if(passString.equals(savedPassString)) {
 					// Login
 					return generateToken(existCustomer);
