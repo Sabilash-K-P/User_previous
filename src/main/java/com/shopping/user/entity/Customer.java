@@ -16,6 +16,9 @@ import javax.persistence.*;
 
 public class Customer {
 	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	private int userId;
+	
 	@Column(nullable = false, unique = true, length = 30)
     private String mail;
      
