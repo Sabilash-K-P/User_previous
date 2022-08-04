@@ -59,7 +59,7 @@ public class CustomerService {
 			if(userExist(mailString))
 			{
 				// Login functionality
-				Optional<Customer> existingUser = customerRepository.findById(mailString);
+				Optional<Customer> existingUser = customerRepository.findByMail(mailString);
 				Customer existCustomer = existingUser.get();
 				String savedPassString = aesEncryptionDecryption.decrypt(existCustomer.getPassword());
 				if(passString.equals(savedPassString)) {
@@ -94,7 +94,7 @@ public class CustomerService {
 	}
 	
 	public boolean validateUser(String mail) {
-		Optional<Customer> customer = customerRepository.findById(mail);
+		Optional<Customer> customer = customerRepository.findByMail(mail);
 		if(customer.isEmpty()) {  
 			return true;
 		}
@@ -104,7 +104,7 @@ public class CustomerService {
 	}
 	
 	public boolean userExist(String mail) {
-		Optional<Customer> customer = customerRepository.findById(mail);
+		Optional<Customer> customer = customerRepository.findByMail(mail);
 		if(customer.isPresent()) {  
 			return true;
 		}
